@@ -4,6 +4,7 @@ import { PORT, NODE_ENV } from './config/env.js';
 import connectTODatacase from './database/mongodb.js';
 import userRouter from './routes/user.routes.js';
 import authRouter from './routes/auth.routes.js';
+import categoryRouter from './routes/category.routes.js';
 // import User from './models/user.model.js';
 
 
@@ -19,9 +20,10 @@ app.get('/', (req, res) => {
   res.send(`app is running on http://localhost:${PORT}`);
 });
 
-
-app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/categories', categoryRouter);
+
 
 
 

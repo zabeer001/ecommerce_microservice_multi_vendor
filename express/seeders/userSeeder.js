@@ -8,6 +8,7 @@ const generateUsers = () => {
       "name": "Admin User",
       "email": "binzabirtareq@gmail.com",
       "password": "12345678",
+      "role": "admin"
 
     },
   ];
@@ -15,8 +16,8 @@ const generateUsers = () => {
     users.push({
       name: `User ${i}`,
       email: `user${i}@example.com`,
-      password: `password${i}`,
-      role: i === 1 ? 'admin' : 'user'
+      password: `123456`,
+      role: 'user', // force role as 'user' for all
     });
   }
   return users;

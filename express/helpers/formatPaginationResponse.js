@@ -8,7 +8,7 @@ export const formatPaginationResponse = (paginationResult, params, req) => {
   // Add second page link if it exists (totalPages >= 2)
   if (totalPages >= 2) {
     links.push({
-      url: `${baseUrl}?page=2&paginate_count=${paginationResult.limit}`,
+      url: `${baseUrl}?paginate_count=${paginationResult.limit}&page=2`,
       label: '2',
       active: page === 2,
     });
@@ -17,7 +17,7 @@ export const formatPaginationResponse = (paginationResult, params, req) => {
   // Add last page link if different from second page (totalPages > 2)
   if (totalPages > 2) {
     links.push({
-      url: `${baseUrl}?page=${totalPages}&paginate_count=${paginationResult.limit}`,
+      url: `${baseUrl}?paginate_count=${paginationResult.limit}&page=${totalPages}`,
       label: `${totalPages}`,
       active: page === totalPages,
     });

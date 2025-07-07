@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6, // optional: for basic validation
     },
+    role: {
+        type: String,
+        required: true,
+        default: 'user', // set default value
+    }
 }, {
     timestamps: true,
 });

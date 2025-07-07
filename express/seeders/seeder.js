@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { DB_URI } from '../config/env.js';
 
 import userSeeder from './userSeeder.js';
+import categorySeeder from './categorySeeder.js';
 // import productSeeder from './productSeeder.js';
 
 
@@ -11,6 +12,7 @@ const runAllSeeders = async () => {
     console.log('Connected to MongoDB');
 
     await userSeeder();
+    await categorySeeder();
     // await productSeeder();
 
 

@@ -2,7 +2,6 @@
 import { signUpService } from '../services/auth/signup.service.js';
 import { loginService } from '../services/auth/login.service.js';
 import { logoutService } from '../services/auth/logout.service.js';
-
 import { profileService } from '../services/users/profile.service.js';
 
 

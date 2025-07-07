@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-
+import User from '../models/user.model.js';  // make sure this path is correct
 import { JWT_SECRET } from '../config/env.js';
 import { tokenBlacklist } from '../helpers/tokenBlacklist.js';
 
@@ -15,14 +15,21 @@ export const authenticate = async (req, res, next) => {
 
     // Check if token is blacklisted
     if (await tokenBlacklist.has(token)) {
-      return res.status(401).json({ message: 'Token is no-longer usable , just got invalid. Please log in again.' });
+      return res.status(401).json({ message: 'Token is no longer usable, please log in again.' });
     }
 
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Attach user info to request object
-    req.user = decoded;
+    // Fetch full user from DB by userId in decoded token
+    const authUser = await User.findById(decoded.userId).select('-password');
+
+    if (!authUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Attach full user info as req.authUser (change to req.user if you want)
+    req.authUser = authUser;
 
     next();
   } catch (error) {
