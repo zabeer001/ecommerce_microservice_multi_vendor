@@ -1,0 +1,10 @@
+| Pattern                       | Where & Why to Use It                                                                                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
+| **Event-Driven Architecture** | For async communication, syncing data across services, triggering workflows (e.g., order events, inventory updates). Use Kafka or Pub/Sub here.  
+                                |
+| **API Composition / BFF**     | For aggregating data from multiple microservices (e.g., categories from Laravel + products from Node) to serve frontend APIs. This is your API gateway or Laravel acting as BFF. |
+
+| **CQRS + Event Sourcing**     | For complex domains needing audit and scalability (e.g., billing, payment processing, user accounts). Use only where necessary due to complexity.      
+
+

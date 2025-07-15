@@ -1,0 +1,10 @@
+✅ Serverless Architecture in AWS
+You’ll mainly use:
+
+AWS API Gateway → Expose your REST or HTTP endpoints
+
+AWS Lambda → Run your backend functions
+
+MongoDB Atlas or DynamoDB → For storing data
+
+(Optional) Amazon S3 / CloudFront → For static assets

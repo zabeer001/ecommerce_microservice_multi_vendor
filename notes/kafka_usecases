@@ -1,0 +1,5 @@
+3️⃣ When Kafka helps performance indirectly:
+Scenario	Explanation
+Your system has bursty writes	Kafka buffers these bursts by queuing events before writing to MongoDB, avoiding DB overload spikes.
+You want to offload heavy read workloads	Kafka can feed cached or pre-aggregated data to other services, reducing load on MongoDB.
+You have multiple services reading/writing data	Kafka decouples services to avoid DB contention and reduce simultaneous complex queries.
