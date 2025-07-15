@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Env;
+use Tymon\JWTAuth\Contracts\JWTSubject; // <-- Ensure this is imported
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject // <-- Implement JWTSubject interface
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'image',
+        'google_id',
     ];
 
     /**
@@ -40,6 +43,38 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
+
+    /**
+     * Get the identifier that will be stored in the JWT token.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Get custom claims for the JWT token.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $frontendUrl = env('FRONTEND_URL');
+        $url = $frontendUrl . '/reset-password/confirm?token=' . $token . '&email=' . urlencode($this->email);
+        $this->notify(new ResetPasswordNotification($url));
+    }
+    
 }
