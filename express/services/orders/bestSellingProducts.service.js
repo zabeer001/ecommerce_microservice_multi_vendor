@@ -12,50 +12,84 @@ export const bestSellingProductsService = async (req) => {
       {
         $group: {
           _id: '$product_id',
-          total_sold: { $sum: '$quantity' }
+          sales: { $sum: '$quantity' }
         }
       },
-      { $sort: { total_sold: -1 } },
+      { $sort: { sales: -1 } },
       { $skip: skip },
       { $limit: per_page },
+
+      // Lookup product details
       {
         $lookup: {
           from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'product'
+        }
+      },
+      { $unwind: '$product' },
+
+      // Lookup category details
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'product.category_id',
+          foreignField: '_id',
+          as: 'category'
+        }
+      },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+
+      // Lookup and calculate review stats
+      {
+        $lookup: {
+          from: 'reviews',
           let: { productId: '$_id' },
           pipeline: [
+            { $match: { $expr: { $eq: ['$product_id', '$$productId'] } } },
             {
-              $match: {
-                $expr: { $eq: ['$_id', '$$productId'] }
-              }
-            },
-            {
-              $project: {
-                name: 1,
-                media: 1,
-                price: 1,
-                _id: 0
+              $group: {
+                _id: null,
+                avgRating: { $avg: '$rating' },
+                totalReviews: { $sum: 1 }
               }
             }
           ],
-          as: 'product_details'
+          as: 'reviewStats'
         }
       },
-      { $unwind: '$product_details' },
+      {
+        $addFields: {
+          reviews_avg_rating: { $ifNull: [{ $arrayElemAt: ['$reviewStats.avgRating', 0] }, 0] },
+          reviews_count: { $ifNull: [{ $arrayElemAt: ['$reviewStats.totalReviews', 0] }, 0] }
+        }
+      },
+
+      // Final projection
       {
         $project: {
-          product_id: { $toString: '$_id' },
-          name: '$product_details.name',
-          media: {
-            $let: {
-              vars: {
-                firstMedia: { $arrayElemAt: ['$product_details.media', 0] }
-              },
-              in: '$$firstMedia.file_path'
-            }
+          id: '$product._id',
+          name: '$product.name',
+          description: '$product.description',
+          image: null, // Modify this if needed
+          price: '$product.price',
+          category_id: '$product.category_id',
+          status: '$product.status',
+          cost_price: '$product.cost_price',
+          stock_quantity: '$product.stock_quantity',
+          sales: '$sales',
+          arrival_status: '$product.arrival_status',
+          created_at: '$product.created_at',
+          updated_at: '$product.updated_at',
+          orders_count: '$product.orders_count',
+          reviews_avg_rating: 1,
+          reviews_count: 1,
+          category: {
+            id: '$category._id',
+            name: '$category.name'
           },
-          price: '$product_details.price',
-          total_sold: 1,
-          _id: 0
+          media: '$product.media'
         }
       }
     ]);
@@ -86,7 +120,7 @@ export const bestSellingProductsService = async (req) => {
 
     return {
       success: true,
-      ...data
+      data
     };
 
   } catch (error) {

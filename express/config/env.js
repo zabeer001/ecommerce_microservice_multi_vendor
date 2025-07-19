@@ -14,5 +14,10 @@ export const CLOUDINARY_URL = process.env.CLOUDINARY_URL || '';
 
 export const STRIPE_KEY = process.env.STRIPE_KEY || '';
 export const STRIPE_SECRET = process.env.STRIPE_SECRET || '';
+export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 export const FRONTEND_URL = process.env.FRONTEND_URL || '';
+export const BACKEND_URL = process.env.BACKEND_URL || '';
+
+export const EMAIL_USER = process.env.EMAIL_USER || '';
+export const EMAIL_PASS = process.env.EMAIL_PASS || '';

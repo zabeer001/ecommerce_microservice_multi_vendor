@@ -1,48 +1,70 @@
 import { formatPaginationResponse } from "../../helpers/formatPaginationResponse.js";
 import Order from "../../models/order.model.js";
+import mongoose from 'mongoose';
 
 export const orderIndexService = async (req) => {
   try {
     const params = req.query;
-    const search = params.search?.trim(); // Get and trim search query
-    const status = params.status; // Get status filter (e.g., 'pending', 'completed')
-    const id = params.id; // Get _id filter (e.g., '6871faa1dc12bd7ece0e3ff4')
+    const search = (params.search || params.serach)?.trim() || '';
+    const status = params.status;
+    const id = params.id;
 
-    const page = parseInt(params?.page, 10) ?? 1;
-    const per_page = parseInt(params?.paginate_count, 10) ?? 10;
+    const page = Number.isInteger(parseInt(params?.page, 10)) ? parseInt(params.page, 10) : 1;
+    const per_page = Number.isInteger(parseInt(params?.paginate_count, 10)) ? parseInt(params.paginate_count, 10) : 10;
 
-    // Build query object for filtering
     const query = {};
 
-    // Add search filter (case-insensitive search on orderNumber or customerEmail)
+    // Filter by user if not admin
+    const authUser = req.authUser;
+    if (!authUser || !authUser._id) {
+      throw new Error('Unauthorized request');
+    }
+
+    if (authUser.role !== 'admin') {
+      query.user_id = authUser._id;
+    }
+
     if (search) {
-      query.$or = [
-        { orderNumber: { $regex: search, $options: 'i' } }, // Search in order number
-        { customerEmail: { $regex: search, $options: 'i' } }, // Search in customer email
-      ];
+      query.$or = [];
+      if (mongoose.Types.ObjectId.isValid(search)) {
+        query.$or.push({ _id: mongoose.Types.ObjectId(search) });
+      }
+      query.$or.push({ order_summary: { $regex: search, $options: "i" } });
     }
 
-    // Add status filter if provided
     if (status) {
-      query.status = status; // Assumes status is a field in your Order model
+      query.status = new RegExp(`^${status}$`, 'i'); // case-insensitive exact match
     }
 
-    // Add _id filter if provided
     if (id) {
-      query._id = id; // Filter by specific _id
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        query._id = mongoose.Types.ObjectId(id);
+      } else {
+        throw new Error("Invalid order ID");
+      }
     }
 
     const options = {
       page,
       limit: per_page,
       lean: true,
-      sort: { createdAt: -1 }, // Sort by newest first
+      sort: { createdAt: -1 },
+      populate: {
+        path: 'user_id',
+        select: '-password'
+      }
     };
 
-    // Execute paginated query with filters
     const paginationResult = await Order.paginate(query, options);
-    const data = formatPaginationResponse(paginationResult, params, req);
 
+    // Rename user_id to customer for clarity
+    paginationResult.docs = paginationResult.docs.map(order => {
+      order.customer = order.user_id;
+      delete order.user_id;
+      return order;
+    });
+
+    const data = formatPaginationResponse(paginationResult, params, req);
     return { success: true, ...data };
 
   } catch (error) {
