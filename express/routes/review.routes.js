@@ -1,19 +1,34 @@
 import express from 'express';
-import ReviewController from '../controllers/review.controller.js';
+import {
+  reviewHomePage,
+  reviewStore,
+  reviewIndex,
+  reviewShow,
+  reviewUpdate,
+  reviewDestroy
+} from '../controllers/review.controller.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { isAdmin } from '../middleware/adminMiddleware.js';
 import upload from '../helpers/multer.js';
 
 const reviewRouter = express.Router();
 
-reviewRouter.get('/home-page', ReviewController.homePage);      
+// Home page reviews (latest 5-star reviews)
+reviewRouter.get('/home-page', reviewHomePage);
 
+// User can post reviews
+reviewRouter.post('/', upload.none(), authenticate, reviewStore);
 
-reviewRouter.post('/', upload.none(), authenticate, ReviewController.store);       // users can post reviews
-reviewRouter.get('/', ReviewController.index);                                      // public access
-reviewRouter.get('/:id', ReviewController.show);                                    // single review show
-reviewRouter.put('/:id', upload.none(), authenticate, ReviewController.update);     // user can update their review
-reviewRouter.delete('/:id', authenticate, isAdmin, ReviewController.destroy);       // only admin can delete reviews
-  
+// Public access to all reviews
+reviewRouter.get('/', reviewIndex);
+
+// Single review show
+reviewRouter.get('/:id', reviewShow);
+
+// User can update their review
+reviewRouter.put('/:id', upload.none(), authenticate, reviewUpdate);
+
+// Only admin can delete reviews
+reviewRouter.delete('/:id', authenticate, isAdmin, reviewDestroy);
 
 export default reviewRouter;

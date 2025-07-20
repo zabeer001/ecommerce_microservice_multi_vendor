@@ -1,23 +1,45 @@
 import express from 'express';
-import CategoryController from '../controllers/category.controller.js';
+import {
+  categoryIndex,
+  categoryIndexByType,
+  categoryStore,
+  categoryShow,
+  categoryUpdate,
+  categoryDestroy
+} from '../controllers/category.controller.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { isAdmin } from '../middleware/adminMiddleware.js';
 import upload from "../helpers/multer.js";
 
-
 const categoryRouter = express.Router();
 
-categoryRouter.get('/by-type', CategoryController.indexByType);
+// Routes
+categoryRouter.get('/by-type', categoryIndexByType);
 
-categoryRouter.post('/', upload.fields([
-  { name: 'image', maxCount: 1 },
-]) ,authenticate , isAdmin , CategoryController.store);
+categoryRouter.post(
+  '/',
+  upload.fields([{ name: 'image', maxCount: 1 }]),
+  authenticate,
+  isAdmin,
+  categoryStore
+);
 
-categoryRouter.get('/', CategoryController.index);
-categoryRouter.get('/:id', CategoryController.show);
-categoryRouter.put('/:id', upload.fields([
-  { name: 'image', maxCount: 1 },
-]) , authenticate , isAdmin , CategoryController.update);
-categoryRouter.delete('/:id', authenticate , isAdmin , CategoryController.destroy); // use 'destroy' to avoid 'delete' conflict
+categoryRouter.get('/', categoryIndex);
+categoryRouter.get('/:id', categoryShow);
+
+categoryRouter.put(
+  '/:id',
+  upload.fields([{ name: 'image', maxCount: 1 }]),
+  authenticate,
+  isAdmin,
+  categoryUpdate
+);
+
+categoryRouter.delete(
+  '/:id',
+  authenticate,
+  isAdmin,
+  categoryDestroy // using 'destroy' to avoid 'delete' keyword conflict
+);
 
 export default categoryRouter;

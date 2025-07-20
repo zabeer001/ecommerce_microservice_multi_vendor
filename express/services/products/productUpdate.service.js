@@ -70,8 +70,10 @@ export const productUpdateService = async (req, productId) => {
     //     "_id": "686fd4e1c0581ee4916e8a38"
     //   }
     // ],
+    
+   
     if (files['media']) {
-      product.media = await updateMultipleMedia(files['media'], product.media);
+      product.media = await updateMultipleMedia(files['media'], product.media); // //takes all the files in meadia and takes media of previous ones.. then delete the previous ones and then uload the new ones. 
     }
 
     // name = 'egal'; you can change the data 
