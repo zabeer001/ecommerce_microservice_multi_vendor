@@ -5,7 +5,8 @@ import {
   productIndex,
   productShow,
   productUpdate,
-  productDestroy
+  productDestroy,
+  getProductCountByCategory
 } from '../controllers/product.controller.js';
 import upload from "../helpers/multer.js";
 import { authenticate } from '../middleware/authMiddleware.js';
@@ -46,5 +47,7 @@ productRouter.put(
 
 // Delete product
 productRouter.delete('/:id', authenticate, isAdmin, productDestroy);
+
+productRouter.get("/count-by-category", getProductCountByCategory);
 
 export default productRouter;

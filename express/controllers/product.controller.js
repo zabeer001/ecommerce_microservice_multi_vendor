@@ -91,3 +91,20 @@ export const productStats = async (req, res) => {
     });
   }
 };
+
+
+export const getProductCountByCategory = async (req, res) => {
+  try {
+    const result = await Product.aggregate([
+      { $group: { _id: "$category_id", productCount: { $sum: 1 } } }
+    ]);
+
+    res.json(result.map(item => ({
+      category_id: item._id,
+      productCount: item.productCount
+    })));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Failed to fetch product counts" });
+  }
+};

@@ -1,11 +1,9 @@
-
 import express from 'express';
 import { PORT, NODE_ENV } from './config/env.js';
 import connectTODatacase from './database/mongodb.js';
 import userRouter from './routes/user.routes.js';
 import authRouter from './routes/auth.routes.js';
 import categoryRouter from './routes/category.routes.js';
-// import User from './models/user.model.js';
 import productRouter from './routes/product.routes.js';
 import promoCodeRouter from './routes/promoCode.routes.js';
 import reviewRouter from './routes/review.routes.js';
@@ -17,66 +15,47 @@ import subscribeRouter from './routes/subscribe.routers.js';
 import generalRouter from './routes/general.router.js';
 import customerRouter from './routes/customer.routers.js';
 import bodyParser from 'body-parser';
-
-
-
+import chatRouter from './routes/chat.routes.js';
+import { Server } from 'socket.io';
+import http from 'http';
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-// Stripe webhook needs raw body
-// app.use('/api/stripe/webhook', bodyParser.raw({ type: 'application/json' }));
-
-// app.post('/api/stripe/webhook', (req, res) => {
-//   // Handle Stripe webhook event here
-//   // Example: verify signature and process event
-//   res.status(200).send('Webhook received');
-// });
+// Socket.IO handle
+io.on('connection', (socket) => {
+  console.log('A new user connected:', socket.id);
+  socket.on('disconnect', () => console.log('User disconnected:', socket.id));
+});
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// ✅ Allow all origins (Access-Control-Allow-Origin: *) 
+// Allow all origins (Access-Control-Allow-Origin: *)
 app.use(cors());
 
 app.get('/', (req, res) => {
   res.send(`app is running on http://localhost:${PORT}`);
 });
 
-// app.use('/api/auth', authRouter);
 app.use('/api', generalRouter);
-
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
-app.use('/api/categories', categoryRouter);
-
-// products
-// app.use('/api', productRouter);
 app.use('/api/products', productRouter);
-
 app.use('/api/promocodes', promoCodeRouter);
 app.use('/api/reviews', reviewRouter);
-
-// order
-// app.use('/api', orderRouter);
 app.use('/api/orders', orderRouter);
-
-
 app.use('/api/customers', customerRouter);
 app.use('/api/contacts', contactRouter);
-
 app.use('/api/stripe', stripeRouter);
-
 app.use('/api/subscribe', subscribeRouter);
+app.use('/api', chatRouter);
 
-
-
-
-
-
-
-app.listen(PORT, async () => {
-    console.log(`http://localhost:${PORT}`);
-    await connectTODatacase();
+// Start the server
+server.listen(PORT, async () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+  await connectTODatacase();
 });
 
 export default app;
