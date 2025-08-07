@@ -1,0 +1,12 @@
+1. step // a http request will go then somehow by the node engine it will convert to the socket request.. 
+
+http vs socket 
+
+the http request dies and aftre sending the a post or get // it expects to get something in return// 
+
+socket is kinda // it establish a connection. 
+
+that http upgrades in socket version// connection method keepAlive
+
+
+every socket will have uniqid 

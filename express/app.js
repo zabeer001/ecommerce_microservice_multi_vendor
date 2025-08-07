@@ -25,8 +25,11 @@ const io = new Server(server);
 
 // Socket.IO handle
 io.on('connection', (socket) => {
-  console.log('A new user connected:', socket.id);
-  socket.on('disconnect', () => console.log('User disconnected:', socket.id));
+ socket.on("user-message", (message)=>{
+  // console.log(message);
+  io.emit("message",message);
+  
+ })
 });
 
 // Middleware to parse JSON bodies
